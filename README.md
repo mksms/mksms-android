@@ -1,2 +1,1 @@
-# mksms-android
-# This is the Android client library for KMSms.
+This is the Android client library for KMSms.
