@@ -6,10 +6,10 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -20,12 +20,9 @@ public class Client {
     private String API_KEY;
     private String API_HASH;
     private static Client cInstance;
-    private Boolean send = false;
     private String url;
-    private HttpClient clientHttp;
-    private boolean sameNumber = false;
-    JSONArray messages = new JSONArray();
-    private String code ;
+    private HttpClient clientHttp;;
+    private String BASE_URL ="http://api.mksms.cm";
 
     /**
      * create a client
@@ -42,46 +39,41 @@ public class Client {
 
     /**
      * get Instance of objet client
-     * @param key
-     * @param hash
+     * @param api_key
+     * @param api_hash
      * @return
      */
-    public Client getInstance(String key, String hash,Context context){
+    public static Client getInstance(String api_key, String api_hash,Context context){
 
         if(cInstance == null){
-            cInstance = new Client(key, hash,context);
+            cInstance = new Client(api_key, api_hash,context);
         }
         return cInstance;
     }
 
     /**
-     * send a message to the server
+     * send a message
      * @param message
      * @return
      */
-    public Boolean sendMessage(Message message){
+    public void sendMessage(Message message, final CallbackResponse callbackResponse){
 
-        url ="http://api.mksms.cm:8000/sms/send/";
-        JSONObject params = new JSONObject();
+        url =BASE_URL+"/sms/send/";
+        JSONObject params = message.createJsonFromMessage();
         try{
-            params.put("api_hash", this.API_HASH);
             params.put("api_key", this.API_KEY);
-            params.put("message", message.createJsonFromMessage() );
+            params.put("api_hash", this.API_HASH);
+            Log.i("params", params.toString());
             clientHttp.post(url, params, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    try {
-                       send = response.getBoolean("success");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    Log.i("response send", response.toString());
+                    callbackResponse.onSucces(new com.mboatek.mKSms.Response(response));
 
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    send = false;
-                    String sendingError = error.toString();
 
                 }
             });
@@ -90,38 +82,36 @@ public class Client {
             e.printStackTrace();
         }
 
-        return send;
     }
 
     /**
-     * get all the messsage in the server
-     * @param dateParam
-     * @param nameofattributeonserver
-     * @return a array of messages
+     * get messages as jsonArray
+     * @param min_date
+     * @return JsonArray
      */
-    public JSONArray getMessages(Date dateParam, String status, final String nameofattributeonserver){
+
+    public void getMessages(Date min_date, final CallbackResponse callbackResponse ){
+
+        int direction = Message.IN;
+        boolean read = false;
+
+        Timestamp sq = new Timestamp(min_date.getDate());
 
         JSONObject params = new JSONObject();
-        url ="http://api.mksms.cm:8000/sms/";
+
+        url =BASE_URL+"/sms/available/?api_key="+this.API_KEY+"&api_hash="+this.API_HASH;
 
         try{
-            params.put("status", status);
-            params.put("date", dateParam);
-            params.put("api_hash", this.API_HASH);
-            params.put("api_key", this.API_KEY);
+            params.put("direction", direction);
+            params.put("read", read);
+            params.put("min_date", sq);
 
             clientHttp.get(url, params, new Response.Listener<JSONObject>() {
 
                 @Override
                 public void onResponse(JSONObject response) {
-                    try {
-
-                         messages = response.getJSONArray(nameofattributeonserver);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
+                    Log.i("response get", response.toString());
+                    callbackResponse.onSucces(new com.mboatek.mKSms.Response(response));
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -132,26 +122,30 @@ public class Client {
         }catch (JSONException e){
             e.printStackTrace();
         }
-        return  messages;
 
     }
 
-    public String start_verification( String number ){
-        url = "http://api.mksms.cm:8000/verify/start";
+    /**
+     * provide a code to verify a specific number
+     * @param number
+     * @return
+     */
+    public void start_verification( String number, String nameofService, final  CallbackResponse callbackResponse ){
+
+        url = BASE_URL+"/phone/verify/start/";
         JSONObject params = new JSONObject();
 
         try {
+            params.put("api_hash", this.API_HASH);
+            params.put("api_key", this.API_KEY);
             params.put("number", number);
+            params.put("name", nameofService);
+
             clientHttp.post(url, params, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    try{
-                        code = response.getJSONObject("code").get("code").toString();
-
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-
+                    Log.i("response verify", response.toString());
+                    callbackResponse.onSucces(new com.mboatek.mKSms.Response(response));
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -159,29 +153,34 @@ public class Client {
 
                 }
             });
-
-        }catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return code;
     }
 
-    public boolean verificationOfNumber(String code, String number){
-        url = "http://api.mksms.cm:8000/verify/confirm";
+    /**
+     * use to verify is a number is correct with the code
+     * @param code
+     * @param number
+     * @return
+     */
+    public void verificationOfNumber(String code, String number, final CallbackResponse callbackResponse){
+
+        url = BASE_URL+"/phone/verify/confirm/";
         JSONObject params = new JSONObject();
 
         try {
             params.put("number", number);
             params.put("code", code);
+            params.put("api_hash", this.API_HASH);
+            params.put("api_key", this.API_KEY);
+
             clientHttp.post(url, params, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    try{
-                        sameNumber = response.getBoolean("success");
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
+                    Log.i("response confirm", response.toString());
+                    callbackResponse.onSucces(new com.mboatek.mKSms.Response(response));
 
                 }
             }, new Response.ErrorListener() {
@@ -194,6 +193,6 @@ public class Client {
         }catch (JSONException e){
             e.printStackTrace();
         }
-        return sameNumber;
+
     }
 }

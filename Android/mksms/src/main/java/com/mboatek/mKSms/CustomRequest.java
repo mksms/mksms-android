@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
-import com.android.volley.Request.Method;
 import com.android.volley.Response;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -57,6 +56,7 @@ class CustomRequest extends JsonObjectRequest {
     }
 
     protected Map<String, String> getParams(){
+
         return this.params;
     }
 

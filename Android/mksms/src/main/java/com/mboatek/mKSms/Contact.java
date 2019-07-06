@@ -50,6 +50,11 @@ public class Contact {
         this.number = number;
     }
 
+    /**
+     * create a jsonobject of contact from a contact object
+     * @param contactJson
+     * @return object Contact
+     */
     public Contact createContactFromJson(JSONObject contactJson){
         try {
 
@@ -63,6 +68,10 @@ public class Contact {
         return this;
     }
 
+    /**
+     * create a contact object of contact from a jsonobject
+     * @return a jsonObject
+     */
     public JSONObject createJsonFromContact(){
 
         JSONObject contactJson = new JSONObject();

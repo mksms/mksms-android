@@ -17,7 +17,7 @@ public class HttpClient {
     private static HttpClient mInstance;
     private RequestQueue mRequestQueue;
     private static Context mContext;
-    String token;
+
 
     private HttpClient(Context context){
         mContext = context;
@@ -55,7 +55,6 @@ public class HttpClient {
     public synchronized void get(String url,JSONObject params, final Response.Listener<JSONObject> listener,
                                  final Response.ErrorListener errorListener){
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-CSRFToken", token);
 
         CustomRequest req = new CustomRequest(Request.Method.GET, url, headers, params, new Response.Listener<JSONObject>() {
             @Override

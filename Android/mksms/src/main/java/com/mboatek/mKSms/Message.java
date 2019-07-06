@@ -9,8 +9,9 @@ import org.json.JSONObject;
  */
 public class Message {
 
-    public String body;
-    public Contact contact;
+    private String body;
+    private Contact contact;
+    public static final int BOTH = 0, OUT = 1, IN = -1;
 
 
     /**
@@ -96,14 +97,8 @@ public class Message {
         JSONObject contactJson = new JSONObject();
         try {
             messageJson.put("body", this.getBody());
-
-            // un autre JsonObject pour l'object contact
-
             contactJson.put("name", this.getContact().getName());
             contactJson.put("number", this.getContact().getNumber());
-
-            // pasage de l'objet contact dans le json
-
             messageJson.put("contact", contactJson);
 
         } catch (JSONException e) {
