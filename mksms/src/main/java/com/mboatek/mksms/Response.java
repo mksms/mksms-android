@@ -25,8 +25,8 @@ public class Response {
                 this.coast = response.getInt("cost");
 
             }
-            if(response.has("data")){
-                this.data = response.getJSONArray("data");
+            if(response.has("smses")){
+                this.data = response.getJSONArray("smses");
             }
 
         } catch (JSONException e) {

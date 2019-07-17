@@ -162,7 +162,7 @@ public class Client {
      * @param number
      * @return
      */
-    public void verificationOfNumber(String code, String number, final CallbackResponse callbackResponse){
+    public void confirm_verification(String code, String number, final CallbackResponse callbackResponse){
 
         url = BASE_URL+"/phone/verify/confirm/";
         JSONObject params = new JSONObject();

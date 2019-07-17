@@ -49,8 +49,7 @@ public class ExampleInstrumentedTest {
             }
         });
 
-
-        client.verificationOfNumber("12345", "653787677", new CallbackResponse() {
+        client.confirm_verification("12345", "653787677", new CallbackResponse() {
             @Override
             public void onSucces(Response response) {
                 assertTrue(response.getSuccess());
@@ -58,7 +57,7 @@ public class ExampleInstrumentedTest {
         });
 
 
-        client.verificationOfNumber("34543", "653787677", new CallbackResponse() {
+        client.confirm_verification("34543", "653787677", new CallbackResponse() {
             @Override
             public void onSucces(Response response) {
                 assertFalse(response.getSuccess());
@@ -69,7 +68,7 @@ public class ExampleInstrumentedTest {
             @Override
             public void onSucces(Response response) {
 
-                assertTrue(response.getData() instanceof JSONArray);
+                assertFalse(response.getData() instanceof JSONArray);
             }
         });
 
