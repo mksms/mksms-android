@@ -22,7 +22,7 @@ public class Client {
     private static Client cInstance;
     private String url;
     private HttpClient clientHttp;;
-    private String BASE_URL ="http://api.mksms.cm";
+    private String BASE_URL ="https://api.mksms.cm";
 
     /**
      * create a client
